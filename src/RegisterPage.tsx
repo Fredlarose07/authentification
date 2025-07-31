@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,7 +17,6 @@ export default function RegisterPage() {
     e.preventDefault()
     setIsLoading(true)
     
-    // Simulation d'un appel API
     setTimeout(() => {
       console.log('Inscription:', {
         firstName,
@@ -26,6 +26,7 @@ export default function RegisterPage() {
         confirmPassword
       })
       setIsLoading(false)
+      // Ici tu pourras rediriger vers la page de connexion après inscription réussie
     }, 1000)
   }
 
@@ -115,9 +116,9 @@ export default function RegisterPage() {
           
           <div className="mt-4 text-center text-sm">
             Déjà un compte ?{" "}
-            <Button variant="link" className="p-0">
+            <Link to="/login" className="text-primary underline-offset-4 hover:underline">
               Se connecter
-            </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

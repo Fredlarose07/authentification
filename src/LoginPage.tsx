@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +17,7 @@ export default function LoginPage() {
     setTimeout(() => {
       console.log('Email:', email, 'Password:', password)
       setIsLoading(false)
+      // Ici tu pourras rediriger vers le dashboard après connexion réussie
     }, 1000)
   }
 
@@ -59,9 +61,9 @@ export default function LoginPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             Pas de compte ?{" "}
-            <Button variant="link" className="p-0">
+            <Link to="/register" className="text-primary underline-offset-4 hover:underline">
               S'inscrire
-            </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
