@@ -7,9 +7,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
+front/node_modules/
+back/node_modules/
 node_modules
+
+# Build outputs
+front/dist/
+front/dist-ssr/
+back/dist/
 dist
 dist-ssr
+
+# Environment variables
+.env
+.env.local
+.env.production
+back/.env
+front/.env
+
+# Runtime files
 *.local
 
 # Editor directories and files
@@ -22,3 +39,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# NestJS specific
+back/coverage/
+back/test/coverage/
+
+# Database
+*.db
+*.sqlite
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Prisma
+back/prisma/migrations/dev.db*
