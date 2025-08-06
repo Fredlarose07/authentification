@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { authService } from '@/services/auth.service'
 
 export default function RegisterPage() {
+  const navigate = useNavigate()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -14,20 +16,24 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
-    setTimeout(() => {
-      console.log('Inscription:', {
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword
-      })
-      setIsLoading(false)
-      // Ici tu pourras rediriger vers la page de connexion après inscription réussie
-    }, 1000)
+  e.preventDefault()
+  setIsLoading(true)
+  
+  try {
+    const user = await authService.register({
+      email,
+      password,
+      firstName,
+      lastName
+    })
+    console.log('Inscription réussie:', user)
+    navigate('/home')
+    } catch (error) {
+    console.error('Erreur inscription:', error)
+    // TODO: Afficher message d'erreur
+    } finally {
+    setIsLoading(false)
+    }
   }
 
   return (

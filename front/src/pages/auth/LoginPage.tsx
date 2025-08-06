@@ -1,25 +1,32 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { authService } from '@/services/auth.service'
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
-    setTimeout(() => {
-      console.log('Email:', email, 'Password:', password)
-      setIsLoading(false)
-      // Ici tu pourras rediriger vers le dashboard après connexion réussie
-    }, 1000)
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setIsLoading(true)
+  
+  try {
+    const user = await authService.login({ email, password })
+    console.log('Connexion réussie:', user)
+    navigate('/home') // TODO: Rediriger vers dashboard
+  } catch (error) {
+    console.error('Erreur connexion:', error)
+    // TODO: Afficher message d'erreur
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
