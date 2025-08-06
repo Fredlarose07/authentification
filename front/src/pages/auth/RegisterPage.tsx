@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { authService } from '@/services/auth.service'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -27,6 +29,7 @@ export default function RegisterPage() {
       lastName
     })
     console.log('Inscription réussie:', user)
+    login(user)
     navigate('/home')
     } catch (error) {
     console.error('Erreur inscription:', error)

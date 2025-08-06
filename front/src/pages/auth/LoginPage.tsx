@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { authService } from '@/services/auth.service'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -19,7 +21,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const user = await authService.login({ email, password })
     console.log('Connexion réussie:', user)
-    navigate('/home') // TODO: Rediriger vers dashboard
+    login(user)
+    navigate('/home') 
   } catch (error) {
     console.error('Erreur connexion:', error)
     // TODO: Afficher message d'erreur
