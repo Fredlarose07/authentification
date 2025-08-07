@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { authService } from '@/services/auth.service'
 import { useAuth } from '@/contexts/AuthContext'
@@ -13,23 +14,24 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setIsLoading(true)
-  
-  try {
-    const user = await authService.login({ email, password })
-    console.log('Connexion réussie:', user)
-    login(user)
-    navigate('/home') 
-  } catch (error) {
-    console.error('Erreur connexion:', error)
-    // TODO: Afficher message d'erreur
-  } finally {
-    setIsLoading(false)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const user = await authService.login({ email, password })
+      login(user)
+      navigate('/home')
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Une erreur est survenue'
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
   }
-}
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -40,7 +42,14 @@ const handleSubmit = async (e: React.FormEvent) => {
             Entrez votre email ci-dessous pour vous connecter à votre compte
           </CardDescription>
         </CardHeader>
+
         <CardContent>
+          {/* Affichage de l'erreur */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
@@ -76,6 +85,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </Link>
           </div>
         </CardContent>
+        
       </Card>
     </div>
   )

@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Eye, EyeOff } from 'lucide-react'
 import { authService } from '@/services/auth.service'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -14,28 +16,32 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')  // ← Nouveau état pour l'erreur
+  const [showPasswords, setShowPasswords] = useState(false)
+
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setIsLoading(true)
-  
-  try {
-    const user = await authService.register({
-      email,
-      password,
-      firstName,
-      lastName
-    })
-    console.log('Inscription réussie:', user)
-    login(user)
-    navigate('/home')
-    } catch (error) {
-    console.error('Erreur inscription:', error)
-    // TODO: Afficher message d'erreur
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')  // ← Reset l'erreur au début
+
+    try {
+      const user = await authService.register({
+        email,
+        password,
+        firstName,
+        lastName
+      })
+      console.log('Inscription réussie:', user)
+      login(user)
+      navigate('/home')
+    } catch (error: any) {
+      console.error('Erreur inscription:', error)
+      const errorMessage = error.response?.data?.message || 'Une erreur est survenue'
+      setError(errorMessage)  // ← Stocker l'erreur pour l'affichage
     } finally {
-    setIsLoading(false)
+      setIsLoading(false)
     }
   }
 
@@ -48,8 +54,16 @@ export default function RegisterPage() {
             Créez votre compte pour commencer
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
+
+          {/* Affichage de l'erreur */}
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -63,7 +77,7 @@ export default function RegisterPage() {
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="lastName">Nom</Label>
                 <Input
@@ -76,7 +90,7 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -88,41 +102,40 @@ export default function RegisterPage() {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Mot de passe</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Minimum 6 caractères"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPasswords ? "text" : "password"}
+                  placeholder="Minimum 6 caractères"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="pr-10"
+                />
+
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3"
+                  onClick={() => setShowPasswords(!showPasswords)}
+                >
+                  {showPasswords ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                </button>
+              </div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Répétez votre mot de passe"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
+
+            <Button
+              type="submit"
               className="w-full"
               disabled={isLoading}
             >
               {isLoading ? 'Création du compte...' : 'Créer mon compte'}
             </Button>
           </form>
-          
+
           <div className="mt-4 text-center text-sm">
             Déjà un compte ?{" "}
             <Link to="/login" className="text-primary underline-offset-4 hover:underline">
