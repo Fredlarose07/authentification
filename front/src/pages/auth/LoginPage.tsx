@@ -55,6 +55,25 @@ export default function LoginPage() {
     }
   }
 
+  const loginDemo = async () => {
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const user = await authService.login({
+        email: 'admin@admin.com',
+        password: 'Admin123'
+      })
+      login(user)
+      navigate('/home')
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Erreur de connexion démo'
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
@@ -113,6 +132,22 @@ export default function LoginPage() {
               </Button>
             </div>
           </form>
+
+          {/* Mode démo */}
+          <div
+            className="mt-4 pl-4 p-2 flex gap-3 bg-gray-50 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={loginDemo}
+          >
+            <span className="font-mono text-gray-600">&gt;_</span>
+
+            <div className="text-sm text-gray-600">
+              <div className="font-medium">Mode démo</div>
+              <p className="text-xs text-gray-500 mb-2 ">
+                Se connecter avec <span className="font-bold underline">admin@admin.com</span>
+              </p>
+            </div>
+          </div>
+
           <div className="mt-4 text-center text-sm">
             Pas de compte ?{" "}
             <Link to="/register" className="text-primary underline-offset-4 hover:underline">
