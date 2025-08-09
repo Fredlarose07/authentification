@@ -4,42 +4,76 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Eye, EyeOff } from 'lucide-react'
 import { authService } from '@/services/auth.service'
 import { useAuth } from '@/contexts/AuthContext'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+// Schéma de validation Zod
+const registerSchema = z.object({
+  firstName: z.string().min(1, 'Le prénom est obligatoire'),
+  lastName: z.string().min(1, 'Le nom est obligatoire'),
+  email: z.string().email('Email invalide'),
+  password: z.string()
+    .min(8, 'Au moins 8 caractères')
+    .regex(/(?=.*[A-Z])(?=.*[0-9])/, 'Au moins 1 majuscule et 1 chiffre')
+})
+
+type RegisterFormData = z.infer<typeof registerSchema>
+
+
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')  // ← Nouveau état pour l'erreur
-  const [showPasswords, setShowPasswords] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema)
+  })
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Surveillance du mot de passe en temps réel
+  const passwordValue = watch('password') || ''
+
+  // Analyse de la force du mot de passe
+  const analyzePassword = (password: string) => {
+    return {
+      minLength: password.length >= 8,
+      hasUpper: /[A-Z]/.test(password),
+      hasNumber: /[0-9]/.test(password)
+    }
+  }
+
+  const passwordStrength = analyzePassword(passwordValue)
+
+
+
+
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true)
-    setError('')  // ← Reset l'erreur au début
 
     try {
       const user = await authService.register({
-        email,
-        password,
-        firstName,
-        lastName
+        email: data.email.trim(),
+        password: data.password,
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim()
       })
-      console.log('Inscription réussie:', user)
+
       login(user)
       navigate('/home')
     } catch (error: any) {
       console.error('Erreur inscription:', error)
-      const errorMessage = error.response?.data?.message || 'Une erreur est survenue'
-      setError(errorMessage)  // ← Stocker l'erreur pour l'affichage
+      // TODO: Afficher l'erreur (on va le faire après)
     } finally {
       setIsLoading(false)
     }
@@ -57,14 +91,7 @@ export default function RegisterPage() {
 
         <CardContent>
 
-          {/* Affichage de l'erreur */}
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">Prénom</Label>
@@ -72,10 +99,12 @@ export default function RegisterPage() {
                   id="firstName"
                   type="text"
                   placeholder="Jean"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
+                  {...register('firstName')}
+                  disabled={isLoading}
                 />
+                {errors.firstName && (
+                  <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -84,10 +113,12 @@ export default function RegisterPage() {
                   id="lastName"
                   type="text"
                   placeholder="Dupont"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
+                  {...register('lastName')}
+                  disabled={isLoading}
                 />
+                {errors.lastName && (
+                  <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                )}
               </div>
             </div>
 
@@ -97,10 +128,12 @@ export default function RegisterPage() {
                 id="email"
                 type="email"
                 placeholder="jean.dupont@exemple.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register('email')}
+                disabled={isLoading}
               />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -108,24 +141,45 @@ export default function RegisterPage() {
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPasswords ? "text" : "password"}
-                  placeholder="Minimum 6 caractères"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Minimum 8 caractères"
+                  {...register('password')}
+                  disabled={isLoading}
                   className="pr-10"
                 />
 
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 flex items-center pr-3"
-                  onClick={() => setShowPasswords(!showPasswords)}
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPasswords ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
+                  {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                 </button>
               </div>
+
+              {/* Indicateur de force du mot de passe */}
+              
+                <div className="mt-2">
+                  <div className="flex gap-1 text-xs">
+                    <span className={passwordStrength.minLength ? 'text-green-600' : 'text-gray-400'}>
+                       8 caractères -
+                    </span>
+                    <span className={passwordStrength.hasUpper ? 'text-green-600' : 'text-gray-400'}>
+                       1 majuscule -
+                    </span>
+                    <span className={passwordStrength.hasNumber ? 'text-green-600' : 'text-gray-400'}>
+                       1 chiffre
+                    </span>
+                  </div>
+                </div>
+              
+
+
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password.message}</p>
+              )}
             </div>
+
 
             <Button
               type="submit"
