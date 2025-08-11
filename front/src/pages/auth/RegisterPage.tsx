@@ -62,18 +62,18 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const user = await authService.register({
+      const authData = await authService.register({  
         email: data.email.trim(),
         password: data.password,
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim()
       })
 
-      login(user)
+      login(authData)  
       navigate('/home')
     } catch (error: any) {
       console.error('Erreur inscription:', error)
-      // TODO: Afficher l'erreur (on va le faire après)
+      // Afficher l'erreur (faire après)
     } finally {
       setIsLoading(false)
     }
@@ -158,21 +158,21 @@ export default function RegisterPage() {
               </div>
 
               {/* Indicateur de force du mot de passe */}
-              
-                <div className="mt-2">
-                  <div className="flex gap-1 text-xs">
-                    <span className={passwordStrength.minLength ? 'text-green-600' : 'text-gray-400'}>
-                       8 caractères -
-                    </span>
-                    <span className={passwordStrength.hasUpper ? 'text-green-600' : 'text-gray-400'}>
-                       1 majuscule -
-                    </span>
-                    <span className={passwordStrength.hasNumber ? 'text-green-600' : 'text-gray-400'}>
-                       1 chiffre
-                    </span>
-                  </div>
+
+              <div className="mt-2">
+                <div className="flex gap-1 text-xs">
+                  <span className={passwordStrength.minLength ? 'text-green-600' : 'text-gray-400'}>
+                    8 caractères -
+                  </span>
+                  <span className={passwordStrength.hasUpper ? 'text-green-600' : 'text-gray-400'}>
+                    1 majuscule -
+                  </span>
+                  <span className={passwordStrength.hasNumber ? 'text-green-600' : 'text-gray-400'}>
+                    1 chiffre
+                  </span>
                 </div>
-              
+              </div>
+
 
 
               {errors.password && (

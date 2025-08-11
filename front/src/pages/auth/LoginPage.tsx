@@ -41,11 +41,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const user = await authService.login({
+      const authData = await authService.login({  
         email: data.email,
         password: data.password
       })
-      login(user)
+      login(authData)  
       navigate('/home')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Une erreur est survenue'
@@ -60,11 +60,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const user = await authService.login({
+      const authData = await authService.login({  
         email: 'admin@admin.com',
         password: 'Admin123'
       })
-      login(user)
+      login(authData)  
       navigate('/home')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erreur de connexion démo'
