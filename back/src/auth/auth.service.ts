@@ -11,14 +11,17 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService  // ← Ajoute JwtService
   ) { }
-
   // Générer un access token ET un refresh token
   private generateToken(user: any) {
     const payload = { email: user.email, sub: user.id };
 
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '15m' }),  // ← 15 minutes
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),  // ← 7 jours
+      access_token: this.jwtService.sign(payload, {
+        expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m'
+      }),
+      refresh_token: this.jwtService.sign(payload, {
+        expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d'
+      }),
       user: {
         id: user.id,
         email: user.email,
