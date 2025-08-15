@@ -41,11 +41,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const authData = await authService.login({  
+      const authData = await authService.login({
         email: data.email,
         password: data.password
       })
-      login(authData)  
+      login(authData)
       navigate('/home')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Une erreur est survenue'
@@ -60,11 +60,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const authData = await authService.login({  
+      const authData = await authService.login({
         email: 'admin@admin.com',
         password: 'Admin123'
       })
-      login(authData)  
+      login(authData)
       navigate('/home')
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Erreur de connexion démo'
@@ -128,7 +128,14 @@ export default function LoginPage() {
 
               </div>
               <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? "Connexion..." : "Se connecter"}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Connexion...
+                  </div>
+                ) : (
+                  "Se connecter"
+                )}
               </Button>
             </div>
           </form>
